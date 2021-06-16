@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Assignment1</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+        </head>
+    </head>
+    <body>
+        <h1 style="text-align: center;">Assignment2</h1>
+        <div class="row">
+            <div class="col-lg-6">
+                <br><br>
+                <h2>Adithya Lakshman Kulkarni</h2>
+                <h3>1001827757</h3>
+            </div>
+        </div>
+        <br>
+
+        <br><br>
+        <div class="d-flex justify-content-center">
+            <form action="/Query1", method="POST" , method = "GET">
+                <input class="btn btn-primary" type="submit" id="button" value="Click here to see earthquake data of 5.0 or greater magnitude"/>
+            </form>
+        </div>
+        <br><br>
+        <h3 style="text-align: center;">Search for a range of magnitude for for range of days, week or for whole 30 days</h3>
+        <br>
+        <div class="d-flex justify-content-center">
+            <form action="/Query2", method="POST" , method = "GET">
+                <label id="labels">Input From Magnitude</label>
+                <input type="text" id="frmag" name="frmag" style="margin-left: 7.5%;width: 45%;" placeholder="Ex 2.0" required/>
+                <br><br>
+                <label id="labels">Input To Magnitude</label>
+                <input type="text" id="tomag" name="tomag" style="margin-left: 13%;width: 45%;" placeholder="Ex 2.5" required/>
+                <br><br>
+                <label id="labels">Input from date</label>
+                <input type="date" min="2021-05-13" max="2021-06-12" id="frdate" name="frdate" style="margin-left: 21%;width: 45%;" placeholder="Ex 2.5" required/>
+                <br><br>
+                <label id="labels">Input to date</label>
+                <input type="date" min="2021-05-13" max="2021-06-12" id="todate" name="todate" style="margin-left: 26%;width: 45%;" placeholder="Ex 2.5" required/>
+                <br><br>
+
+                <input style="margin-left: 40%" class="btn btn-primary" type="submit" id="button" value="Submit"/>
+            </form>
+        </div>
+
+
+        <h3 style="text-align: center;">Search Data based on location</h3>
+        <br>
+        <div class="d-flex justify-content-center">
+            <form action="/Query3", method="POST" , method = "GET">
+                <label id="labels">Input Latitude</label>
+                <input type="text" id="latitude" name="latitude" style="margin-left: 20%;width: 45%;" placeholder="Ex: 35.55" required/>
+                <br><br>
+                <label id="labels">Input Longitude</label>
+                <input type="text" id="longitude" name="longitude" style="margin-left: 16%;width: 45%;" placeholder="Ex: -77.66" required/>
+                <br><br>
+                <label id="labels">Input Distance in Kms</label>
+                <input type="text" id="distance" name="distance" style="margin-left: 4%;width: 45%;" placeholder="Ex 20,30" required/>
+                <br><br>
+
+                <input style="margin-left: 38%" class="btn btn-primary" type="submit" id="button" value="Submit"/>
+            </form>
+        </div>
+        <br>
+        <h3 style="text-align: center;">Search A cluster of Earthqaukes for a paticular maangitude</h3>
+        <br><br>
+        <div class="d-flex justify-content-center">
+            
+            <form action="/Query4", method="POST" , method = "GET">
+                <label id="labels">Input Magnitude</label>
+                <input type="text" id="mag" name="mag" style="margin-left: 13%;width: 45%;" placeholder="Ex 2.0" required/>
+                <br><br>
+                <input style="margin-left: 38%" class="btn btn-primary" type="submit" id="button" value="Submit"/>
+            </form>
+        </div>
+
+        <h3 style="text-align: center;">Search Earthquakes of Large Magnitude at night time</h3>
+        <br><br>
+        <div class="d-flex justify-content-center">
+            
+            <form action="/Query5", method="POST" , method = "GET">
+                <label id="labels">Input Magnitude</label>
+                <input type="text" id="nightmag" name="nightmag" style="margin-left: 13%;width: 45%;" placeholder="Ex 2.0" required/>
+                <br><br>
+                <input style="margin-left: 38%" class="btn btn-primary" type="submit" id="button" value="Submit"/>
+            </form>
+        </div>
+
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
+    </body>
+</html>
