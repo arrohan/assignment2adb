@@ -1,0 +1,407 @@
+CSE 6331: Cloud Computing
+Programming Assignment 2
+
+Name: Adithya Lakhsman Kulkarni
+UTA ID: 1001827757
+
+
+Task: You will get world earthquake data, import into SQL and with a web interface
+allow users to find out (query) interesting information about those earthquakes.
+
+
+#######-----------------------------------------------------------------Databese Connection------------------------------------------------------------######
+
+
+driver = '{ODBC Driver 17 for SQL Server}'
+server_name = 'assignment1-adithya'
+database_name = 'assignment-1'
+server = '{server_name}.database.windows.net,1433'.format(server_name=server_name)
+
+#define username and Password
+username = 'adithya'
+password = 'Constallation123'
+
+
+#create full connection string
+connection_string = textwrap.dedent(''' 
+    Driver={driver};
+    Server={server};
+    Database={database};
+    Uid={username};
+    Pwd={password};
+    Encrypt=yes;
+    TrustServerCertificate=no;
+    Connection Timeout=30;
+'''.format(
+    driver=driver,
+    server=server,
+    database=database_name,
+    username=username,
+    password=password
+))
+
+cnxn: pyodbc.Connection = pyodbc.connect(connection_string)
+crsr: pyodbc.Cursor = cnxn.cursor()
+#----------------------------------------------------------------End of Database Connection-----------------------------------------------------------######
+
+
+### Search for and count all earthquakes that occurred with a magnitude greater than 5.0 ###
+
+app.py
+
+@app.route('/Query1', methods=["POST","GET"])
+def q1():   
+    mag_5_sql="Select * from [all_month] where mag>5.0"
+    crsr.execute(mag_5_sql)
+    mag_5_list=crsr.fetchall()
+    count=len(mag_5_list)
+    return render_template('magnitude5.html', list1=mag_5_list, count=count)
+-----------------------------
+
+index.html
+
+<div class="d-flex justify-content-center">
+            <form action="/Query1", method="POST" , method = "GET">
+                <input class="btn btn-primary" type="submit" id="button" value="Click here to see earthquake data of 5.0 or greater magnitude"/>
+            </form>
+</div>
+
+-----------------------------
+
+magnitude5.html
+
+ <h3 style="text-align: center;">The Data for all Earthqaukes with magnitude greater than 5</h3>
+        <br>
+        <h3 style="text-align: center;">There are totally {{count}} earthquakes</h3>
+        <table class="table-bordered" style="width: 1000px;margin-left:20% ;">
+            <thead>
+                <tr>
+                   <th>Time</th>
+                   <th>Latiture</th>
+                   <th>Longitude</th>
+                   <th>Depth</th>
+                   <th>Mag</th>
+                   <th>Place</th>
+                   <th>Type</th>
+                   <th></th>
+                </tr>
+                {% for item in list1 %}
+                <tr>
+                    <td>{{item[0]}}</td>
+                    <td>{{item[1]}}</td>
+                    <td>{{item[2]}}</td>
+                    <td>{{item[3]}}</td>
+                    <td>{{item[4]}}</td>
+                    <td>{{item[13]}}</td>
+                    <td>{{item[14]}}</td>
+                </tr>
+                {% endfor %}
+            </thead>
+           </table>
+
+
+---------------------------------------------------------------------END OF QUERY 1---------------------------------------------------------------
+
+
+
+######## 		Search for 2.0 to 2.5, 2.5 to 3.0, etc magnitude quakes for a one week, a range of days or the whole 30 days. 		############
+
+
+app.py
+
+@app.route('/Query2', methods=["POST","GET"])
+def q2():
+    frmag=str(request.form.get("frmag"))
+    tomag=str(request.form.get("tomag"))
+    frdate=str(request.form.get("frdate"))
+    print(frdate)
+    todate=str(request.form.get("todate"))
+    print(todate)
+    crsr.execute("Select * from [all_month] where mag>="+frmag+" and mag<="+tomag+" and time>='"+frdate+"' and time<='"+todate+"'")
+    magrange=crsr.fetchall()
+    return render_template('magandtime.html', data=magrange)
+
+----------------------
+index.html
+
+<h3 style="text-align: center;">Search for a range of magnitude for for range of days, week or for whole 30 days</h3>
+        <br>
+        <div class="d-flex justify-content-center">
+            <form action="/Query2", method="POST" , method = "GET">
+                <label id="labels">Input From Magnitude</label>
+                <input type="text" id="frmag" name="frmag" style="margin-left: 7.5%;width: 45%;" placeholder="Ex 2.0" required/>
+                <br><br>
+                <label id="labels">Input To Magnitude</label>
+                <input type="text" id="tomag" name="tomag" style="margin-left: 13%;width: 45%;" placeholder="Ex 2.5" required/>
+                <br><br>
+                <label id="labels">Input from date</label>
+                <input type="date" min="2021-05-13" max="2021-06-12" id="frdate" name="frdate" style="margin-left: 21%;width: 45%;" placeholder="Ex 2.5" required/>
+                <br><br>
+                <label id="labels">Input to date</label>
+                <input type="date" min="2021-05-13" max="2021-06-12" id="todate" name="todate" style="margin-left: 26%;width: 45%;" placeholder="Ex 2.5" required/>
+                <br><br>
+
+                <input style="margin-left: 40%" class="btn btn-primary" type="submit" id="button" value="Submit"/>
+            </form>
+        </div>
+
+
+---------------------
+
+magandtime.html
+
+<h3 style="text-align: center;">Data for the given range and date</h3>
+        <table class="table-bordered" style="width: 1000px;margin-left:18% ;">
+            <thead>
+                <tr>
+                   <th>Time</th>
+                   <th>Latiture</th>
+                   <th>Longitude</th>
+                   <th>Mag</th>
+                   <th>Place</th>
+                   <th>Type</th>
+                   <th></th>
+                </tr>
+                {% for item in data%}
+                <tr>
+                    <td>{{item[0]}}</td>
+                    <td>{{item[1]}}</td>
+                    <td>{{item[2]}}</td>
+                    <td>{{item[4]}}</td>
+                    <td>{{item[13]}}</td>
+                    <td>{{item[14]}}</td>
+                </tr>
+                {% endfor %}
+            </thead>
+           </table>
+               
+-----------------------------------------------------------------------------END OF QUERY 2----------------------------------------------------------------------
+
+
+
+########################## 		Find earthquakes that were near (20 km, 50 km?) of a specified location. 	#########################################
+
+
+app.py
+
+@app.route('/Query3', methods=["POST","GET"])
+def q3():
+    latitude=str(request.form.get("latitude"))
+    longitude=str(request.form.get("longitude"))
+    distance=str(request.form.get("distance"))
+
+    ## Coverting KMS to Degrees  ##
+
+    neglatitude=float(latitude)-float(distance)/111
+    neglongitude=float(longitude)-float(distance)/111
+    poslatitude=float(latitude)+float(distance)/111
+    poslongitude=float(longitude)+float(distance)/111
+
+    loaction_sql="Select * from [all_month] where latitude>="+str(neglatitude)+" and latitude<="+str(poslatitude)+" and longitude>="+str(neglongitude)+" and longitude<="+str(poslongitude)
+    crsr.execute(loaction_sql)
+    loactiondata=crsr.fetchall()
+    return render_template('locationwise.html', data=loactiondata)
+
+
+------------------
+
+index.html
+
+<h3 style="text-align: center;">Search Data based on location</h3>
+        <br>
+        <div class="d-flex justify-content-center">
+            <form action="/Query3", method="POST" , method = "GET">
+                <label id="labels">Input Latitude</label>
+                <input type="text" id="latitude" name="latitude" style="margin-left: 20%;width: 45%;" placeholder="Ex: 35.55" required/>
+                <br><br>
+                <label id="labels">Input Longitude</label>
+                <input type="text" id="longitude" name="longitude" style="margin-left: 16%;width: 45%;" placeholder="Ex: -77.66" required/>
+                <br><br>
+                <label id="labels">Input Distance in Kms</label>
+                <input type="text" id="distance" name="distance" style="margin-left: 4%;width: 45%;" placeholder="Ex 20,30" required/>
+                <br><br>
+
+                <input style="margin-left: 38%" class="btn btn-primary" type="submit" id="button" value="Submit"/>
+            </form>
+        </div>
+
+
+------------------
+
+locationwise.html
+
+<h3 style="text-align: center;">Data for the give location</h3>
+        <table class="table-bordered" style="width: 1000px;margin-left:18% ;">
+            <thead>
+                <tr>
+                   <th>Time</th>
+                   <th>Latiture</th>
+                   <th>Longitude</th>
+                   <th>Mag</th>
+                   <th>Place</th>
+                   <th>Type</th>
+                   <th></th>
+                </tr>
+                {% for item in data%}
+                <tr>
+                    <td>{{item[0]}}</td>
+                    <td>{{item[1]}}</td>
+                    <td>{{item[2]}}</td>
+                    <td>{{item[4]}}</td>
+                    <td>{{item[13]}}</td>
+                    <td>{{item[14]}}</td>
+                </tr>
+                {% endfor %}
+            </thead>
+           </table>
+
+
+-------------------------------------------------------------------------END OF QUERY 3----------------------------------------------------------------
+
+
+
+
+
+#################                                              Find clusters of earthquakes				#################################
+
+
+app.py
+
+@app.route('/Query4', methods=["POST","GET"])
+def q4():
+    mag=request.form.get("mag")
+    cluster_sql="Select * from [all_month] where mag="+mag
+    crsr.execute(cluster_sql)
+    cluster_list=crsr.fetchall()
+    count=len(cluster_list)
+    return render_template('cluster.html', data=cluster_list, count=count)
+
+---------------
+
+index.html
+
+<h3 style="text-align: center;">Search A cluster of Earthqaukes for a paticular maangitude</h3>
+        <br><br>
+        <div class="d-flex justify-content-center">
+            
+            <form action="/Query4", method="POST" , method = "GET">
+                <label id="labels">Input Magnitude</label>
+                <input type="text" id="mag" name="mag" style="margin-left: 13%;width: 45%;" placeholder="Ex 2.0" required/>
+                <br><br>
+                <input style="margin-left: 38%" class="btn btn-primary" type="submit" id="button" value="Submit"/>
+            </form>
+        </div>
+
+
+----------------------
+
+cluster.html
+
+<h3 style="text-align: center;">Data for the given cluster</h3><br><br>
+        <table class="table-bordered" style="width: 1000px;margin-left:20% ;">
+            <thead>
+                <tr>
+                   <th>Time</th>
+                   <th>Latiture</th>
+                   <th>Longitude</th>
+                   <th>Depth</th>
+                   <th>Mag</th>
+                   <th>Place</th>
+                   <th>Type</th>
+                   <th></th>
+                </tr>
+                {% for item in data %}
+                <tr>
+                    <td>{{item[0]}}</td>
+                    <td>{{item[1]}}</td>
+                    <td>{{item[2]}}</td>
+                    <td>{{item[3]}}</td>
+                    <td>{{item[4]}}</td>
+                    <td>{{item[13]}}</td>
+                    <td>{{item[14]}}</td>
+                </tr>
+                {% endfor %}
+            </thead>
+           </table>
+
+
+
+
+
+-------------------------------------------------------------------------END OF QUERY 4----------------------------------------------------------------
+
+
+
+###############################				Do large (>4.0 mag) occur more often at night? And similar…		##########################
+
+
+app.py
+
+@app.route('/Query5', methods=["POST","GET"])
+def q5():
+    magnitude=request.form.get("nightmag")
+    nightquakes_sql="SELECT * from [all_month] WHERE MAG > "+magnitude+"  AND (DATEADD(day, -DATEDIFF(day, 0, time), time) > '00:10:10.000' and DATEADD(day, -DATEDIFF(day, 0, time), time) < '05:00:00.000');"
+    crsr.execute(nightquakes_sql)
+    night_list=crsr.fetchall()
+    return render_template('nightquakes.html', data=night_list)
+
+
+-----------------------------
+
+
+index.html
+
+        <h3 style="text-align: center;">Search Earthquakes of Large Magnitude at night time</h3>
+        <br><br>
+        <div class="d-flex justify-content-center">
+            
+            <form action="/Query5", method="POST" , method = "GET">
+                <label id="labels">Input Magnitude</label>
+                <input type="text" id="nightmag" name="nightmag" style="margin-left: 13%;width: 45%;" placeholder="Ex 2.0" required/>
+                <br><br>
+                <input style="margin-left: 38%" class="btn btn-primary" type="submit" id="button" value="Submit"/>
+            </form>
+        </div>
+
+
+---------------------------
+
+nightquakes.html
+
+<h3 style="text-align: center;">The data for Quakes of large magnitude happening during night time</h3>
+        <br><br>
+        <table class="table-bordered" style="width: 1000px;margin-left:20% ;">
+            <thead>
+                <tr>
+                   <th>Time</th>
+                   <th>Latiture</th>
+                   <th>Longitude</th>
+                   <th>Mag</th>
+                   <th>Place</th>
+                   <th>Type</th>
+                   <th></th>
+                </tr>
+                {% for item in data %}
+                <tr>
+                    <td>{{item[0]}}</td>
+                    <td>{{item[1]}}</td>
+                    <td>{{item[2]}}</td>
+                    <td>{{item[4]}}</td>
+                    <td>{{item[13]}}</td>
+                    <td>{{item[14]}}</td>
+                </tr>
+                {% endfor %}
+            </thead>
+           </table>				
+
+
+
+
+-------------------------------------------------------------------------END OF QUERY 5----------------------------------------------------------------
+
+
+
+
+
+
+
